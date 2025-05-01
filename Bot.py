@@ -177,89 +177,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(message, reply_markup=main_keyboard())
 
 # --- هندل دکمه‌ها ---
-async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    query = update.callback_query
-    await query.answer()
-
-    if not await is_user_member(update, context):
-        await query.edit_message_text(f"🔒 لطفاً ابتدا در کانال عضو شوید:\n{CHANNEL_USERNAME}")
-        return
-
-    if query.data == "refresh":
-        message = f"{get_countdown_text()}\n\n📜 حدیث روز:\n{get_random_hadith()}"
-        await query.edit_message_text(message, reply_markup=main_keyboard())
-
-    elif query.data == "about":
-        await query.edit_message_text(ABOUT_TEXT, reply_markup=main_keyboard())
-
-    elif query.data == "madahi":
-        madahi = get_random_madahi()
-        keyboard = [
-            [InlineKeyboardButton("🎧 مداحی دیگه", callback_data="madahi")],
-            [InlineKeyboardButton("🔙 برگشت", callback_data="refresh")]
-        ]
-        await query.edit_message_text(f"🎵 مداحی برات:\n{madahi}", reply_markup=InlineKeyboardMarkup(keyboard))
-
-    elif query.data == "books":
-        keyboard = [[InlineKeyboardButton("📘 کتاب اول", url="https://t.me/hasinyanon128/4781")],
-                    [InlineKeyboardButton("📗 کتاب دوم", url="https://t.me/hasinyanon128/4782")],
-                    [InlineKeyboardButton("🔙 برگشت", callback_data="refresh")]]
-        await query.edit_message_text("📚 کتاب‌های پیشنهادی:", reply_markup=InlineKeyboardMarkup(keyboard))
-
-    elif query.data == "salavat":
-        count = context.user_data.get("salavat_count", 0) + 1
-        context.user_data["salavat_count"] = count
-
-        keyboard = InlineKeyboardMarkup([
-            [InlineKeyboardButton("📿 فرستادن صلوات", callback_data="salavat")],
-            [InlineKeyboardButton("🔄 ریست صلوات‌ها", callback_data="reset_salavat")],
-            [InlineKeyboardButton("🔙 برگشت", callback_data="refresh")]
-        ])
-        await query.edit_message_text(
-            f"📿 تعداد صلوات‌های شما: {count}",
-            reply_markup=keyboard
-        )
-        
-    elif query.data == "reset_salavat":
-        context.user_data["salavat_count"] = 0
-        keyboard = InlineKeyboardMarkup([
-            [InlineKeyboardButton("📿 فرستادن صلوات", callback_data="salavat")],
-            [InlineKeyboardButton("🔄 ریست صلوات‌ها", callback_data="reset_salavat")],
-            [InlineKeyboardButton("🔙 برگشت", callback_data="refresh")]
-        ])
-        await query.edit_message_text(
-            "📿 صلوات‌ها ریست شدند. دوباره شروع کن!",
-            reply_markup=keyboard
-        )
-
-    elif query.data == "managheb_ali":
-        context.user_data["managheb_index"] = 0  # شروع از حدیث اول
-        hadith = managheb_list[0]
-        keyboard = InlineKeyboardMarkup([
-            [InlineKeyboardButton("➡️ حدیث بعدی", callback_data="next_managheb")],
-            [InlineKeyboardButton("🔙 برگشت", callback_data="refresh")]
-        ])
-        await query.edit_message_text(hadith, reply_markup=keyboard)
-        
-    elif query.data == "next_managheb":
-        index = context.user_data.get("managheb_index", 0)
-        index = (index + 1) % len(managheb_list)  # حلقه‌ای
-        context.user_data["managheb_index"] = index
-        hadith = managheb_list[index]
-        keyboard = InlineKeyboardMarkup([
-            [InlineKeyboardButton("➡️ حدیث بعدی", callback_data="next_managheb")],
-            [InlineKeyboardButton("🔙 برگشت", callback_data="refresh")]
-        ])
-        await query.edit_message_text(hadith, reply_markup=keyboard)
-
-
-
-# --- هندل اینلاین (اشتراک‌گذاری) با دکمه صلوات‌شمار ---
-user_salavat_count = 0  # شمارش کل صلوات‌ها برای همه کاربران (متغیر سراسری)
-
-# شناسه ادمین ربات (برای مثال 123456789)
-ADMIN_ID = 123456789
-
+# --- هندل دکمه‌ها ---
 async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
@@ -269,41 +187,92 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await query.edit_message_text(f"🔒 لطفاً ابتدا در کانال عضو شوید:\n{CHANNEL_USERNAME}")
         return
 
-    # دکمه فرستادن صلوات
-    if query.data == "salavat":
-        global user_salavat_count  # برای دسترسی به شمارش جمعی
-        user_salavat_count += 1  # افزایش شمارش کل صلوات‌ها
+    # دکمه بروزرسانی
+    if query.data == "refresh":
+        message = f"{get_countdown_text()}\n\n📜 حدیث روز:\n{get_random_hadith()}"
+        await query.edit_message_text(message, reply_markup=main_keyboard())
 
-        # ارسال پیام به کاربر
+    # دکمه درباره
+    elif query.data == "about":
+        await query.edit_message_text(ABOUT_TEXT, reply_markup=main_keyboard())
+
+    # دکمه مداحی
+    elif query.data == "madahi":
+        madahi = get_random_madahi()
+        keyboard = [
+            [InlineKeyboardButton("🎧 مداحی دیگه", callback_data="madahi")],
+            [InlineKeyboardButton("🔙 برگشت", callback_data="refresh")]
+        ]
+        await query.edit_message_text(f"🎵 مداحی برات:\n{madahi}", reply_markup=InlineKeyboardMarkup(keyboard))
+
+    # دکمه کتاب
+    elif query.data == "books":
+        keyboard = [[InlineKeyboardButton("📘 کتاب اول", url="https://t.me/hasinyanon128/4781")],
+                    [InlineKeyboardButton("📗 کتاب دوم", url="https://t.me/hasinyanon128/4782")],
+                    [InlineKeyboardButton("🔙 برگشت", callback_data="refresh")]]
+        await query.edit_message_text("📚 کتاب‌های پیشنهادی:", reply_markup=InlineKeyboardMarkup(keyboard))
+
+    # دکمه صلوات
+    elif query.data == "salavat":
+        # کاربر: صلوات شخصی
+        count = context.user_data.get("salavat_count", 0) + 1
+        context.user_data["salavat_count"] = count
+
+        # کل کاربران
+        global user_salavat_count
+        user_salavat_count += 1
+
         keyboard = InlineKeyboardMarkup([
             [InlineKeyboardButton("📿 فرستادن صلوات", callback_data="salavat")],
-            # نمایش دکمه ریست فقط برای ادمین
             [InlineKeyboardButton("🔄 ریست صلوات‌ها", callback_data="reset_salavat")] if update.effective_user.id == ADMIN_ID else [],
             [InlineKeyboardButton("🔙 برگشت", callback_data="refresh")]
         ])
         await query.edit_message_text(
-            f"📿 تعداد کل صلوات‌ها: {user_salavat_count}",
+            f"📿 تعداد صلوات‌های شما: {count}\n💬 تعداد کل صلوات‌ها: {user_salavat_count}",
             reply_markup=keyboard
         )
 
-        # ارسال تعداد کل صلوات‌ها به کانال عمومی
+        # ارسال به کانال
         salavat_message = f"💬 تعداد کل صلوات‌ها: {user_salavat_count}!"
         await context.bot.send_message(chat_id=CHANNEL_USERNAME, text=salavat_message)
 
-    # دکمه ریست کردن صلوات‌ها (فقط برای ادمین)
+    # دکمه ریست صلوات‌ها
     elif query.data == "reset_salavat" and update.effective_user.id == ADMIN_ID:
-        global user_salavat_count
-        user_salavat_count = 0  # ریست کردن شمارش کل صلوات‌ها
-
+        context.user_data["salavat_count"] = 0
+        user_salavat_count = 0
         keyboard = InlineKeyboardMarkup([
             [InlineKeyboardButton("📿 فرستادن صلوات", callback_data="salavat")],
-            [InlineKeyboardButton("🔄 ریست صلوات‌ها", callback_data="reset_salavat")] if update.effective_user.id == ADMIN_ID else [],
+            [InlineKeyboardButton("🔄 ریست صلوات‌ها", callback_data="reset_salavat")],
             [InlineKeyboardButton("🔙 برگشت", callback_data="refresh")]
         ])
         await query.edit_message_text(
             "📿 صلوات‌ها ریست شدند. دوباره شروع کن!",
             reply_markup=keyboard
         )
+
+    # دکمه مناقب حضرت علی
+    elif query.data == "managheb_ali":
+        context.user_data["managheb_index"] = 0
+        hadith = managheb_list[0]
+        keyboard = InlineKeyboardMarkup([
+            [InlineKeyboardButton("➡️ حدیث بعدی", callback_data="next_managheb")],
+            [InlineKeyboardButton("🔙 برگشت", callback_data="refresh")]
+        ])
+        await query.edit_message_text(hadith, reply_markup=keyboard)
+
+    # دکمه حدیث بعدی
+    elif query.data == "next_managheb":
+        index = context.user_data.get("managheb_index", 0)
+        index = (index + 1) % len(managheb_list)
+        context.user_data["managheb_index"] = index
+        hadith = managheb_list[index]
+        keyboard = InlineKeyboardMarkup([
+            [InlineKeyboardButton("➡️ حدیث بعدی", callback_data="next_managheb")],
+            [InlineKeyboardButton("🔙 برگشت", callback_data="refresh")]
+        ])
+        await query.edit_message_text(hadith, reply_markup=keyboard)
+
+
 
 
 
