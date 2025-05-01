@@ -159,24 +159,28 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 # --- هندل اینلاین (اشتراک‌گذاری) با دکمه صلوات‌شمار ---
-async def inline(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    query = update.inline_query.query
-    message = f"{get_countdown_text()}\n\n📜 حدیث روز:\n{get_random_hadith()}"
+async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
 
-    keyboard = InlineKeyboardMarkup([
-        [InlineKeyboardButton("📿 فرستادن صلوات", callback_data="salavat")]
-    ])
+    if not await is_user_member(update, context):
+        await query.edit_message_text(f"🔒 لطفاً ابتدا در کانال عضو شوید:\n{CHANNEL_USERNAME}")
+        return
 
-    results = [
-        InlineQueryResultArticle(
-            id="1",
-            title="ارسال شمارش معکوس عید غدیر",
-            input_message_content=InputTextMessageContent(message),
-            reply_markup=keyboard,
-            description="⏳ ارسال متن روز همراه با حدیث و صلوات‌شمار",
+    if query.data == "salavat":
+        count = context.user_data.get("salavat_count", 0) + 1
+        context.user_data["salavat_count"] = count
+
+        keyboard = InlineKeyboardMarkup([
+            [InlineKeyboardButton("📿 فرستادن صلوات", callback_data="salavat")],
+            [InlineKeyboardButton("🔄 ریست صلوات‌ها", callback_data="reset_salavat")],
+            [InlineKeyboardButton("🔙 برگشت", callback_data="refresh")]
+        ])
+        await query.edit_message_text(
+            f"📿 تعداد صلوات‌های شما: {count}",
+            reply_markup=keyboard
         )
-    ]
-    await update.inline_query.answer(results, cache_time=1)
+
 
 
 # --- اجرای ربات ---
