@@ -156,10 +156,8 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 
-
-
 # --- هندل اینلاین (اشتراک‌گذاری) با دکمه صلوات‌شمار ---
-user_salavat_count = 0  # شمارش کل صلوات برای همه کاربران
+user_salavat_count = 0  # شمارش کل صلوات‌ها برای همه کاربران (متغیر سراسری)
 
 # شناسه ادمین ربات (برای مثال 123456789)
 ADMIN_ID = 123456789
@@ -176,7 +174,7 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # دکمه فرستادن صلوات
     if query.data == "salavat":
         global user_salavat_count  # برای دسترسی به شمارش جمعی
-        user_salavat_count += 1  # افزایش شمارش صلوات برای همه کاربران
+        user_salavat_count += 1  # افزایش شمارش کل صلوات‌ها
 
         # ارسال پیام به کاربر
         keyboard = InlineKeyboardMarkup([
