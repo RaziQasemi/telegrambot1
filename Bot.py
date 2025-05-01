@@ -159,25 +159,53 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 # --- هندل اینلاین (اشتراک‌گذاری) با دکمه صلوات‌شمار ---
+user_salavat_count = 0  # شمارش کل صلوات برای همه کاربران
+
+# شناسه ادمین ربات (برای مثال 123456789)
+ADMIN_ID = 123456789
+
 async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
 
+    # بررسی عضویت کاربر در کانال
     if not await is_user_member(update, context):
         await query.edit_message_text(f"🔒 لطفاً ابتدا در کانال عضو شوید:\n{CHANNEL_USERNAME}")
         return
 
+    # دکمه فرستادن صلوات
     if query.data == "salavat":
-        count = context.user_data.get("salavat_count", 0) + 1
-        context.user_data["salavat_count"] = count
+        global user_salavat_count  # برای دسترسی به شمارش جمعی
+        user_salavat_count += 1  # افزایش شمارش صلوات برای همه کاربران
 
+        # ارسال پیام به کاربر
         keyboard = InlineKeyboardMarkup([
             [InlineKeyboardButton("📿 فرستادن صلوات", callback_data="salavat")],
-            [InlineKeyboardButton("🔄 ریست صلوات‌ها", callback_data="reset_salavat")],
+            # نمایش دکمه ریست فقط برای ادمین
+            [InlineKeyboardButton("🔄 ریست صلوات‌ها", callback_data="reset_salavat")] if update.effective_user.id == ADMIN_ID else [],
             [InlineKeyboardButton("🔙 برگشت", callback_data="refresh")]
         ])
         await query.edit_message_text(
-            f"📿 تعداد صلوات‌های شما: {count}",
+            f"📿 تعداد کل صلوات‌ها: {user_salavat_count}",
+            reply_markup=keyboard
+        )
+
+        # ارسال تعداد کل صلوات‌ها به کانال عمومی
+        salavat_message = f"💬 تعداد کل صلوات‌ها: {user_salavat_count}!"
+        await context.bot.send_message(chat_id=CHANNEL_USERNAME, text=salavat_message)
+
+    # دکمه ریست کردن صلوات‌ها (فقط برای ادمین)
+    elif query.data == "reset_salavat" and update.effective_user.id == ADMIN_ID:
+        global user_salavat_count
+        user_salavat_count = 0  # ریست کردن شمارش کل صلوات‌ها
+
+        keyboard = InlineKeyboardMarkup([
+            [InlineKeyboardButton("📿 فرستادن صلوات", callback_data="salavat")],
+            [InlineKeyboardButton("🔄 ریست صلوات‌ها", callback_data="reset_salavat")] if update.effective_user.id == ADMIN_ID else [],
+            [InlineKeyboardButton("🔙 برگشت", callback_data="refresh")]
+        ])
+        await query.edit_message_text(
+            "📿 صلوات‌ها ریست شدند. دوباره شروع کن!",
             reply_markup=keyboard
         )
 
