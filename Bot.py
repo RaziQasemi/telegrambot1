@@ -15,6 +15,7 @@ from telegram.ext import (
     ContextTypes,
 )
 from telegram.error import BadRequest
+
 import os
 from dotenv import load_dotenv
 
@@ -23,8 +24,6 @@ BOT_TOKEN = os.getenv("BOT_TOKEN")
 
 CHANNEL_USERNAME = '@hasinyanon128'
 TARGET_DATE = datetime.datetime(2025, 6, 14)
-
-user_salavat_count = {}  # در بالای فایل بزار (global dict)
 
 # --- لیست احادیث ---
 hadith_list = [
@@ -56,7 +55,7 @@ managheb_list = [
 
     📘 منبع: الجواهر السنیة، ص ۵۲۰""",
 
-    """✅ حدیث منقبت – حضور امیرالمؤمنین علیه‌السلام در مجالس ذکر
+"""✅ حدیث منقبت – حضور امیرالمؤمنین علیه‌السلام در مجالس ذکر
 
 💬 امیرالمؤمنین علی علیه‌السلام فرمودند:
 
@@ -70,7 +69,7 @@ managheb_list = [
 (کسانی که ایمان آوردند و کارهای شایسته کردند، خوشا بر آنان و نیکوست فرجامشان.)
 
 📘 منبع: سلسله التراث العلوی، ص ۳۷۸""" ,
-    """✅ حدیث منقبت – امیرالمؤمنین و حجاب‌های الهی
+"""✅ حدیث منقبت – امیرالمؤمنین و حجاب‌های الهی
 
 💬 امام رضا علیه‌السلام فرمودند:
 
@@ -80,7 +79,7 @@ managheb_list = [
 🌟 معرفت علی علیه‌السلام، حقیقتی است که جز با نشانه‌های آسمانی قابل کشف نیست.
 
 📘 منبع: حقائق اسرار الدین، حسن بن شُعبه""" ,
-    """✅ حدیث منقبت – راز «باب حطّه» و ولایت علی علیه‌السلام
+"""✅ حدیث منقبت – راز «باب حطّه» و ولایت علی علیه‌السلام
 
 💬 پرسیدم: معنای *باب حِطَّه* چیست؟  
 فرمودند:
@@ -94,7 +93,7 @@ managheb_list = [
 ☀️ «بگویید: علی علیه‌السلام اعلی ربّ العالمین است.»
 
 📘 منبع: المجموعه المفضلیه، کتاب الأنوار و الحُجُب، ص ۴۰""" , 
-    """✅ حدیث منقبت – حضرت مقصد المقاصد
+"""✅ حدیث منقبت – حضرت مقصد المقاصد
 
 💬 امیرالمؤمنین علی علیه‌السلام فرمودند:
 
@@ -128,12 +127,10 @@ def main_keyboard():
     return InlineKeyboardMarkup([ 
         [InlineKeyboardButton("🔄 بروزرسانی", callback_data="refresh")],
         [InlineKeyboardButton("🌟 مناقب حضرت علی (ع)", callback_data="managheb_ali")],  
-        [InlineKeyboardButton("📿 صلوات‌شمار", callback_data="salavat")],
         [InlineKeyboardButton("📚 کتاب", callback_data="books")],
         [InlineKeyboardButton("🎵 مداحی", callback_data="madahi")],
         [InlineKeyboardButton("📤 اشتراک‌گذاری", switch_inline_query="")],
         [InlineKeyboardButton("ℹ️ درباره", callback_data="about")]
-        
     ])
 
 # --- محاسبه شمارش معکوس ---
@@ -200,94 +197,4 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
     elif query.data == "books":
         keyboard = [[InlineKeyboardButton("📘 کتاب اول", url="https://t.me/hasinyanon128/4781")],
                     [InlineKeyboardButton("📗 کتاب دوم", url="https://t.me/hasinyanon128/4782")],
-                    [InlineKeyboardButton("🔙 برگشت", callback_data="refresh")]]
-        await query.edit_message_text("📚 کتاب‌های پیشنهادی:", reply_markup=InlineKeyboardMarkup(keyboard))
-
-    # دکمه صلوات
-    elif query.data == "salavat":
-        # کاربر: صلوات شخصی
-        user_salavat_count = context.user_data.get("salavat_count", 0) + 1
-        context.user_data["salavat_count"] = user_salavat_count
-
-        # کل کاربران
-        global salavat_global_count
-        salavat_global_count += 1
-
-        keyboard = InlineKeyboardMarkup([
-            [InlineKeyboardButton("📿 فرستادن صلوات", callback_data="salavat")],
-            [InlineKeyboardButton("🔄 ریست صلوات‌ها", callback_data="reset_salavat")] if update.effective_user.id == ADMIN_ID else [],
-            [InlineKeyboardButton("🔙 برگشت", callback_data="refresh")]
-        ])
-        await query.edit_message_text(
-            f"📿 تعداد صلوات‌های شما: {user_salavat_count}\n💬 تعداد کل صلوات‌ها: {salavat_global_count}",
-            reply_markup=keyboard
-        )
-
-        # ارسال به کانال
-        salavat_message = f"💬 تعداد کل صلوات‌ها: {salavat_global_count}!"
-        await context.bot.send_message(chat_id=CHANNEL_USERNAME, text=salavat_message)
-
-    # دکمه ریست صلوات‌ها
-    elif query.data == "reset_salavat" and update.effective_user.id == ADMIN_ID:
-        context.user_data["salavat_count"] = 0
-        salavat_global_count = 0
-        keyboard = InlineKeyboardMarkup([
-            [InlineKeyboardButton("📿 فرستادن صلوات", callback_data="salavat")],
-            [InlineKeyboardButton("🔄 ریست صلوات‌ها", callback_data="reset_salavat")],
-            [InlineKeyboardButton("🔙 برگشت", callback_data="refresh")]
-        ])
-        await query.edit_message_text(
-            "📿 صلوات‌ها ریست شدند. دوباره شروع کن!",
-            reply_markup=keyboard
-        )
-
-    # دکمه مناقب حضرت علی
-    elif query.data == "managheb_ali":
-        context.user_data["managheb_index"] = 0
-        hadith = managheb_list[0]
-        keyboard = InlineKeyboardMarkup([
-            [InlineKeyboardButton("➡️ حدیث بعدی", callback_data="next_managheb")],
-            [InlineKeyboardButton("🔙 برگشت", callback_data="refresh")]
-        ])
-        await query.edit_message_text(hadith, reply_markup=keyboard)
-
-    # دکمه حدیث بعدی
-    elif query.data == "next_managheb":
-        index = context.user_data.get("managheb_index", 0)
-        index = (index + 1) % len(managheb_list)
-        context.user_data["managheb_index"] = index
-        hadith = managheb_list[index]
-        keyboard = InlineKeyboardMarkup([
-            [InlineKeyboardButton("➡️ حدیث بعدی", callback_data="next_managheb")],
-            [InlineKeyboardButton("🔙 برگشت", callback_data="refresh")]
-        ])
-        await query.edit_message_text(hadith, reply_markup=keyboard)
-
-async def inline(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    query = update.inline_query.query
-
-    if not query:
-        return
-
-    results = [
-        InlineQueryResultArticle(
-            id="1",
-            title="صلوات بفرست 🌸",
-            input_message_content=InputTextMessageContent("📿 صلواتی نثار امام علی (ع) و حضرت زهرا (س)"),
-        ),
-        InlineQueryResultArticle(
-            id="2",
-            title="حدیث روز ✨",
-            input_message_content=InputTextMessageContent(get_random_hadith()),
-        ),
-    ]
-    await update.inline_query.answer(results)
-
-
-# --- اجرای ربات ---
-app = Application.builder().token(BOT_TOKEN).build()
-app.add_handler(CommandHandler("start", start))
-app.add_handler(CommandHandler("countdown", start))
-app.add_handler(CallbackQueryHandler(button))
-app.add_handler(InlineQueryHandler(inline))
-app.run_polling()
+                   
