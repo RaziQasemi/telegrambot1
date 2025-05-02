@@ -272,6 +272,25 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
         ])
         await query.edit_message_text(hadith, reply_markup=keyboard)
 
+async def inline(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.inline_query.query
+
+    if not query:
+        return
+
+    results = [
+        InlineQueryResultArticle(
+            id="1",
+            title="صلوات بفرست 🌸",
+            input_message_content=InputTextMessageContent("📿 صلواتی نثار امام علی (ع) و حضرت زهرا (س)"),
+        ),
+        InlineQueryResultArticle(
+            id="2",
+            title="حدیث روز ✨",
+            input_message_content=InputTextMessageContent(get_random_hadith()),
+        ),
+    ]
+    await update.inline_query.answer(results)
 
 
 
