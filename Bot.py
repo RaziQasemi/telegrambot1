@@ -1,4 +1,5 @@
 import datetime
+import randomimport datetime
 import random
 from telegram import (
     Update,
@@ -14,8 +15,8 @@ from telegram.ext import (
     InlineQueryHandler,
     ContextTypes,
 )
-from telegram.error import BadRequest
 
+from telegram.error import BadRequest
 import os
 from dotenv import load_dotenv
 
@@ -53,7 +54,7 @@ managheb_list = [
 
 و من نگریستم، دیدم درهای آسمان گشوده شد و علی علیه‌السلام را در زمین دیدم که سر به آسمان برداشته، به من می‌نگرد. او با من سخن گفت و من نیز با او سخن گفتم.
 
-    📘 منبع: الجواهر السنیة، ص ۵۲۰""",
+📘 منبع: الجواهر السنیة، ص ۵۲۰""",
 
 """✅ حدیث منقبت – حضور امیرالمؤمنین علیه‌السلام در مجالس ذکر
 
@@ -68,7 +69,7 @@ managheb_list = [
 *«إِنَّ الَّذِينَ آمَنُوا وَعَمِلُوا الصَّالِحَاتِ طُوبَى لَهُمْ وَحُسْنُ مَآبٍ»*  
 (کسانی که ایمان آوردند و کارهای شایسته کردند، خوشا بر آنان و نیکوست فرجامشان.)
 
-📘 منبع: سلسله التراث العلوی، ص ۳۷۸""" ,
+📘 منبع: سلسله التراث العلوی، ص ۳۷۸""",
 """✅ حدیث منقبت – امیرالمؤمنین و حجاب‌های الهی
 
 💬 امام رضا علیه‌السلام فرمودند:
@@ -78,7 +79,7 @@ managheb_list = [
 
 🌟 معرفت علی علیه‌السلام، حقیقتی است که جز با نشانه‌های آسمانی قابل کشف نیست.
 
-📘 منبع: حقائق اسرار الدین، حسن بن شُعبه""" ,
+📘 منبع: حقائق اسرار الدین، حسن بن شُعبه""",
 """✅ حدیث منقبت – راز «باب حطّه» و ولایت علی علیه‌السلام
 
 💬 پرسیدم: معنای *باب حِطَّه* چیست؟  
@@ -92,7 +93,7 @@ managheb_list = [
 
 ☀️ «بگویید: علی علیه‌السلام اعلی ربّ العالمین است.»
 
-📘 منبع: المجموعه المفضلیه، کتاب الأنوار و الحُجُب، ص ۴۰""" , 
+📘 منبع: المجموعه المفضلیه، کتاب الأنوار و الحُجُب، ص ۴۰""", 
 """✅ حدیث منقبت – حضرت مقصد المقاصد
 
 💬 امیرالمؤمنین علی علیه‌السلام فرمودند:
@@ -170,21 +171,17 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
 
-    # بررسی عضویت کاربر در کانال
     if not await is_user_member(update, context):
         await query.edit_message_text(f"🔒 لطفاً ابتدا در کانال عضو شوید:\n{CHANNEL_USERNAME}")
         return
 
-    # دکمه بروزرسانی
     if query.data == "refresh":
         message = f"{get_countdown_text()}\n\n📜 حدیث روز:\n{get_random_hadith()}"
         await query.edit_message_text(message, reply_markup=main_keyboard())
 
-    # دکمه درباره
     elif query.data == "about":
         await query.edit_message_text(ABOUT_TEXT, reply_markup=main_keyboard())
 
-    # دکمه مداحی
     elif query.data == "madahi":
         madahi = get_random_madahi()
         keyboard = [
@@ -193,8 +190,21 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
         ]
         await query.edit_message_text(f"🎵 مداحی برات:\n{madahi}", reply_markup=InlineKeyboardMarkup(keyboard))
 
-    # دکمه کتاب
     elif query.data == "books":
         keyboard = [[InlineKeyboardButton("📘 کتاب اول", url="https://t.me/hasinyanon128/4781")],
                     [InlineKeyboardButton("📗 کتاب دوم", url="https://t.me/hasinyanon128/4782")],
-                   
+                    [InlineKeyboardButton("🔙 برگشت", callback_data="refresh")]]
+        await query.edit_message_text("📚 کتاب‌های پیشنهادی:", reply_markup=InlineKeyboardMarkup(keyboard))
+
+    elif query.data == "managheb_ali":
+        context
+
+
+
+# --- اجرای ربات ---
+app = Application.builder().token(BOT_TOKEN).build()
+app.add_handler(CommandHandler("start", start))
+app.add_handler(CommandHandler("countdown", start))
+app.add_handler(CallbackQueryHandler(button))
+app.add_handler(InlineQueryHandler(inline))
+app.run_polling()
