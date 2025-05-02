@@ -1,5 +1,9 @@
 import datetime
 import random
+import os
+from dotenv import load_dotenv
+from uuid import uuid4
+
 from telegram import (
     Update,
     InlineKeyboardButton,
@@ -14,18 +18,14 @@ from telegram.ext import (
     InlineQueryHandler,
     ContextTypes,
 )
-
 from telegram.error import BadRequest
-import os
-from dotenv import load_dotenv
 
 load_dotenv()
 BOT_TOKEN = os.getenv("BOT_TOKEN")
-
 CHANNEL_USERNAME = '@hasinyanon128'
 TARGET_DATE = datetime.datetime(2025, 6, 14)
 
-# --- لیست احادیث ---
+# --- متون ---
 hadith_list = [
     "❤️ هر که با علی دشمنی کند، با من دشمنی کرده است. (پیامبر اکرم)",
     "✨ علی با حق است و حق با علی است. (پیامبر اکرم)",
@@ -55,7 +55,7 @@ managheb_list = [
 
 📘 منبع: الجواهر السنیة، ص ۵۲۰""",
 
-"""✅ حدیث منقبت – حضور امیرالمؤمنین علیه‌السلام در مجالس ذکر
+    """✅ حدیث منقبت – حضور امیرالمؤمنین علیه‌السلام در مجالس ذکر
 
 💬 امیرالمؤمنین علی علیه‌السلام فرمودند:
 
@@ -69,7 +69,8 @@ managheb_list = [
 (کسانی که ایمان آوردند و کارهای شایسته کردند، خوشا بر آنان و نیکوست فرجامشان.)
 
 📘 منبع: سلسله التراث العلوی، ص ۳۷۸""",
-"""✅ حدیث منقبت – امیرالمؤمنین و حجاب‌های الهی
+
+    """✅ حدیث منقبت – امیرالمؤمنین و حجاب‌های الهی
 
 💬 امام رضا علیه‌السلام فرمودند:
 
@@ -79,7 +80,8 @@ managheb_list = [
 🌟 معرفت علی علیه‌السلام، حقیقتی است که جز با نشانه‌های آسمانی قابل کشف نیست.
 
 📘 منبع: حقائق اسرار الدین، حسن بن شُعبه""",
-"""✅ حدیث منقبت – راز «باب حطّه» و ولایت علی علیه‌السلام
+
+    """✅ حدیث منقبت – راز «باب حطّه» و ولایت علی علیه‌السلام
 
 💬 پرسیدم: معنای *باب حِطَّه* چیست؟  
 فرمودند:
@@ -93,7 +95,8 @@ managheb_list = [
 ☀️ «بگویید: علی علیه‌السلام اعلی ربّ العالمین است.»
 
 📘 منبع: المجموعه المفضلیه، کتاب الأنوار و الحُجُب، ص ۴۰""", 
-"""✅ حدیث منقبت – حضرت مقصد المقاصد
+
+    """✅ حدیث منقبت – حضرت مقصد المقاصد
 
 💬 امیرالمؤمنین علی علیه‌السلام فرمودند:
 
@@ -107,51 +110,48 @@ managheb_list = [
 📘 منبع: المناقب (علوی)، الکتاب العتیق، ص ۱۱۳"""
 ]
 
-# --- متن درباره ---
+madahi_list = [
+    "https://t.me/hasinyanon128/4682",
+    "https://t.me/hasinyanon128/2672",
+    "https://t.me/hasinyanon128/2110",
+]
+
 ABOUT_TEXT = (
-    "🤖 این ربات جهت یادآوری زمان باقی ماند تا عید غدیر و نشر احادیث ساخته شده.\n"
-    "✨ به دست رضی الدین قاسمی، خادم حضرت فضه سلام الله علیها.\n"
+    "🤖 این ربات جهت یادآوری زمان باقی مانده تا عید غدیر و نشر احادیث ساخته شده.\n"
+    "✨ به دست رضی الدین قاسمی، خادم حضرت فضه سلام‌الله‌علیها.\n"
     "📬 آیدی ارتباط: @QASEMI121\n"
     "جهت کمک به برپایی هرچه زیباتر عیدالله اکبر غدیر شماره کارت -6279611101066558-"
 )
 
-# --- لیست مداحی‌ها ---
-madahi_list = [
-    "https://t.me/hasinyanon128/4682",  # لینک مداحی اول
-    "https://t.me/hasinyanon128/2672",  # لینک مداحی دوم
-    "https://t.me/hasinyanon128/2110",  # لینک مداحی سوم
-]
-
-# --- کیبورد اصلی ---
+# --- توابع کمکی ---
 def main_keyboard():
-    return InlineKeyboardMarkup([ 
+    return InlineKeyboardMarkup([
         [InlineKeyboardButton("🔄 بروزرسانی", callback_data="refresh")],
-        [InlineKeyboardButton("🌟 مناقب حضرت علی (ع)", callback_data="managheb_ali")],  
+        [InlineKeyboardButton("🌟 مناقب حضرت علی (ع)", callback_data="managheb_ali")],
         [InlineKeyboardButton("📚 کتاب", callback_data="books")],
         [InlineKeyboardButton("🎵 مداحی", callback_data="madahi")],
         [InlineKeyboardButton("📤 اشتراک‌گذاری", switch_inline_query="")],
-        [InlineKeyboardButton("ℹ️ درباره", callback_data="about")]
+        [InlineKeyboardButton("ℹ️ درباره", callback_data="about")],
     ])
 
-# --- محاسبه شمارش معکوس ---
 def get_countdown_text():
     now = datetime.datetime.now()
     delta = TARGET_DATE - now
-    days_left = delta.days
-    return f"⏳ {days_left} روز تا عید غدیر باقی مانده است!"
+    return f"⏳ {delta.days} روز تا عید غدیر باقی مانده است!"
 
-# --- حدیث رندوم ---
 def get_random_hadith():
     return random.choice(hadith_list)
 
-# --- ارسال مداحی رندوم ---
 def get_random_madahi():
     return random.choice(madahi_list)
 
-# --- بررسی عضویت در کانال ---
+def get_random_managheb():
+    return random.choice(managheb_list)
+
 async def is_user_member(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
-        user_status = await context.bot.get_chat_member(chat_id=CHANNEL_USERNAME, user_id=update.effective_user.id)
+        user_status = await context.bot.get_chat_member(
+            chat_id=CHANNEL_USERNAME, user_id=update.effective_user.id)
         return user_status.status in ['member', 'administrator', 'creator']
     except BadRequest:
         return False
@@ -165,7 +165,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     message = f"{get_countdown_text()}\n\n📜 حدیث روز:\n{get_random_hadith()}"
     await update.message.reply_text(message, reply_markup=main_keyboard())
 
-# --- هندل دکمه‌ها ---
+# --- دکمه‌ها ---
 async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
@@ -174,14 +174,16 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await query.edit_message_text(f"🔒 لطفاً ابتدا در کانال عضو شوید:\n{CHANNEL_USERNAME}")
         return
 
-    if query.data == "refresh":
+    data = query.data
+
+    if data == "refresh":
         message = f"{get_countdown_text()}\n\n📜 حدیث روز:\n{get_random_hadith()}"
         await query.edit_message_text(message, reply_markup=main_keyboard())
 
-    elif query.data == "about":
+    elif data == "about":
         await query.edit_message_text(ABOUT_TEXT, reply_markup=main_keyboard())
 
-    elif query.data == "madahi":
+    elif data == "madahi":
         madahi = get_random_madahi()
         keyboard = [
             [InlineKeyboardButton("🎧 مداحی دیگه", callback_data="madahi")],
@@ -189,16 +191,28 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
         ]
         await query.edit_message_text(f"🎵 مداحی برات:\n{madahi}", reply_markup=InlineKeyboardMarkup(keyboard))
 
-    elif query.data == "books":
-        keyboard = [[InlineKeyboardButton("📘 کتاب اول", url="https://t.me/hasinyanon128/4781")],
-                    [InlineKeyboardButton("📗 کتاب دوم", url="https://t.me/hasinyanon128/4782")],
-                    [InlineKeyboardButton("🔙 برگشت", callback_data="refresh")]]
+    elif data == "books":
+        keyboard = [
+            [InlineKeyboardButton("📘 کتاب اول", url="https://t.me/hasinyanon128/4781")],
+            [InlineKeyboardButton("📗 کتاب دوم", url="https://t.me/hasinyanon128/4782")],
+            [InlineKeyboardButton("🔙 برگشت", callback_data="refresh")]
+        ]
         await query.edit_message_text("📚 کتاب‌های پیشنهادی:", reply_markup=InlineKeyboardMarkup(keyboard))
 
-    elif query.data == "managheb_ali":
-        context
+    elif data == "managheb_ali":
+        await query.edit_message_text(get_random_managheb(), reply_markup=main_keyboard())
 
-
+# --- inline query handler ---
+async def inline(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    result = [
+        InlineQueryResultArticle(
+            id=str(uuid4()),
+            title="📜 حدیث تصادفی",
+            input_message_content=InputTextMessageContent(get_random_hadith()),
+            description="ارسال حدیثی از حضرت علی (ع)"
+        )
+    ]
+    await update.inline_query.answer(result, cache_time=5)
 
 # --- اجرای ربات ---
 app = Application.builder().token(BOT_TOKEN).build()
