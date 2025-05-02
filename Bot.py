@@ -206,12 +206,12 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # دکمه صلوات
     elif query.data == "salavat":
         # کاربر: صلوات شخصی
-        count = context.user_data.get("salavat_count", 0) + 1
-        context.user_data["salavat_count"] = count
+        user_salavat_count = context.user_data.get("salavat_count", 0) + 1
+        context.user_data["salavat_count"] = user_salavat_count
 
         # کل کاربران
-        global user_salavat_count
-        user_salavat_count += 1
+        global salavat_global_count
+        salavat_global_count += 1
 
         keyboard = InlineKeyboardMarkup([
             [InlineKeyboardButton("📿 فرستادن صلوات", callback_data="salavat")],
@@ -219,18 +219,18 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
             [InlineKeyboardButton("🔙 برگشت", callback_data="refresh")]
         ])
         await query.edit_message_text(
-            f"📿 تعداد صلوات‌های شما: {count}\n💬 تعداد کل صلوات‌ها: {user_salavat_count}",
+            f"📿 تعداد صلوات‌های شما: {user_salavat_count}\n💬 تعداد کل صلوات‌ها: {salavat_global_count}",
             reply_markup=keyboard
         )
 
         # ارسال به کانال
-        salavat_message = f"💬 تعداد کل صلوات‌ها: {user_salavat_count}!"
+        salavat_message = f"💬 تعداد کل صلوات‌ها: {salavat_global_count}!"
         await context.bot.send_message(chat_id=CHANNEL_USERNAME, text=salavat_message)
 
     # دکمه ریست صلوات‌ها
     elif query.data == "reset_salavat" and update.effective_user.id == ADMIN_ID:
         context.user_data["salavat_count"] = 0
-        user_salavat_count = 0
+        salavat_global_count = 0
         keyboard = InlineKeyboardMarkup([
             [InlineKeyboardButton("📿 فرستادن صلوات", callback_data="salavat")],
             [InlineKeyboardButton("🔄 ریست صلوات‌ها", callback_data="reset_salavat")],
