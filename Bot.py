@@ -14,9 +14,7 @@ from telegram.ext import (
     InlineQueryHandler,
     ContextTypes,
 )
-
 from telegram.error import BadRequest
-user_salavat_count = {}  # در بالای فایل بزار (global dict)
 import os
 from dotenv import load_dotenv
 
@@ -25,6 +23,8 @@ BOT_TOKEN = os.getenv("BOT_TOKEN")
 
 CHANNEL_USERNAME = '@hasinyanon128'
 TARGET_DATE = datetime.datetime(2025, 6, 14)
+
+user_salavat_count = {}  # در بالای فایل بزار (global dict)
 
 # --- لیست احادیث ---
 hadith_list = [
@@ -56,7 +56,7 @@ managheb_list = [
 
     📘 منبع: الجواهر السنیة، ص ۵۲۰""",
 
-"""✅ حدیث منقبت – حضور امیرالمؤمنین علیه‌السلام در مجالس ذکر
+    """✅ حدیث منقبت – حضور امیرالمؤمنین علیه‌السلام در مجالس ذکر
 
 💬 امیرالمؤمنین علی علیه‌السلام فرمودند:
 
@@ -70,7 +70,7 @@ managheb_list = [
 (کسانی که ایمان آوردند و کارهای شایسته کردند، خوشا بر آنان و نیکوست فرجامشان.)
 
 📘 منبع: سلسله التراث العلوی، ص ۳۷۸""" ,
-"""✅ حدیث منقبت – امیرالمؤمنین و حجاب‌های الهی
+    """✅ حدیث منقبت – امیرالمؤمنین و حجاب‌های الهی
 
 💬 امام رضا علیه‌السلام فرمودند:
 
@@ -80,7 +80,7 @@ managheb_list = [
 🌟 معرفت علی علیه‌السلام، حقیقتی است که جز با نشانه‌های آسمانی قابل کشف نیست.
 
 📘 منبع: حقائق اسرار الدین، حسن بن شُعبه""" ,
-"""✅ حدیث منقبت – راز «باب حطّه» و ولایت علی علیه‌السلام
+    """✅ حدیث منقبت – راز «باب حطّه» و ولایت علی علیه‌السلام
 
 💬 پرسیدم: معنای *باب حِطَّه* چیست؟  
 فرمودند:
@@ -94,7 +94,7 @@ managheb_list = [
 ☀️ «بگویید: علی علیه‌السلام اعلی ربّ العالمین است.»
 
 📘 منبع: المجموعه المفضلیه، کتاب الأنوار و الحُجُب، ص ۴۰""" , 
-"""✅ حدیث منقبت – حضرت مقصد المقاصد
+    """✅ حدیث منقبت – حضرت مقصد المقاصد
 
 💬 امیرالمؤمنین علی علیه‌السلام فرمودند:
 
@@ -106,15 +106,7 @@ managheb_list = [
 ⚖️ و *میزان* خدا.
 
 📘 منبع: المناقب (علوی)، الکتاب العتیق، ص ۱۱۳"""
-
-
-
-
-
-
 ]
-
-
 
 # --- متن درباره ---
 ABOUT_TEXT = (
@@ -176,7 +168,6 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     message = f"{get_countdown_text()}\n\n📜 حدیث روز:\n{get_random_hadith()}"
     await update.message.reply_text(message, reply_markup=main_keyboard())
 
-# --- هندل دکمه‌ها ---
 # --- هندل دکمه‌ها ---
 async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
@@ -291,8 +282,6 @@ async def inline(update: Update, context: ContextTypes.DEFAULT_TYPE):
         ),
     ]
     await update.inline_query.answer(results)
-
-
 
 
 # --- اجرای ربات ---
