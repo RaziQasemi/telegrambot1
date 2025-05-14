@@ -28,7 +28,7 @@ def generate_prompt(mode, user_input):
 
 # ---------- GPT Call ----------
 
-client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY", "").strip())
 
 async def ask_gpt(prompt):
     response = await client.chat.completions.create(
