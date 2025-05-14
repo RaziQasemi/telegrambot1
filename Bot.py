@@ -28,8 +28,10 @@ def generate_prompt(mode, user_input):
 
 # ---------- GPT Call ----------
 
+client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+
 async def ask_gpt(prompt):
-    response = await openai.ChatCompletion.acreate(
+    response = await client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=[
             {"role": "system", "content": "پاسخ‌ها باید مودبانه، ساده و معتبر باشه. فقط حدیث‌های واقعی و با منبع معتبر بیار."},
@@ -38,6 +40,8 @@ async def ask_gpt(prompt):
         max_tokens=500,
         temperature=0.7,
     )
+    return response.choices[0].message.content
+
     return response.choices[0].message.content
 
 # ---------- Telegram Handlers ----------
