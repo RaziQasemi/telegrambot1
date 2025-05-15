@@ -1,13 +1,17 @@
 import os
-import openai
 from dotenv import load_dotenv
 from telegram import Update, ReplyKeyboardMarkup, KeyboardButton
 from telegram.ext import Application, CommandHandler, MessageHandler, ContextTypes, filters
 
+from transformers import pipeline, AutoTokenizer, AutoModelForCausalLM
+
 load_dotenv()
 BOT_TOKEN = os.getenv("BOT_TOKEN")
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-openai.api_key = OPENAI_API_KEY
+HF_TOKEN = os.getenv("OPENAI_API_KEY")  # توکن Hugging Face در .env
+
+# ---------- مدل Hugging Face ----------
+model_name = "HuggingFaceH4/zephyr-7b-beta"  # یا هر مدل دلخواه
+pipe = pipeline("text-generation", model=model_name, tokenizer=model_name, token=HF_TOKEN, max_new_tokens=500)
 
 # ---------- Prompt Generators ----------
 def generate_prompt(mode, user_input):
@@ -26,24 +30,10 @@ def generate_prompt(mode, user_input):
 در پایان، اگر حدیثی از حضرت علی علیه‌السلام درباره رشد، یادگیری، حکمت یا تلاش وجود دارد، بیار و منبع معتبرش رو بنویس.
 موضوع: {user_input}"""
 
-# ---------- GPT Call ----------
-
-client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY", "").strip())
-
+# ---------- Hugging Face پاسخ ----------
 async def ask_gpt(prompt):
-    response = await client.chat.completions.create(
-        model="gpt-3.5-turbo",
-        messages=[
-            {"role": "system", "content": "پاسخ‌ها باید مودبانه، ساده و معتبر باشه. فقط حدیث‌های واقعی و با منبع معتبر بیار."},
-            {"role": "user", "content": prompt}
-        ],
-        max_tokens=500,
-        temperature=0.7,
-    )
-    return response.choices[0].message.content
-
-    await update.message.reply_text("❌ متأسفم، ربات در حال حاضر به دلیل محدودیت در سرور پاسخگو نیست.")
-
+    result = pipe(prompt)
+    return result[0]["generated_text"]
 
 # ---------- Telegram Handlers ----------
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
