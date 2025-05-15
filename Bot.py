@@ -42,7 +42,8 @@ async def ask_gpt(prompt):
     )
     return response.choices[0].message.content
 
-    return response.choices[0].message.content
+    await update.message.reply_text("❌ متأسفم، ربات در حال حاضر به دلیل محدودیت در سرور پاسخگو نیست.")
+
 
 # ---------- Telegram Handlers ----------
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
