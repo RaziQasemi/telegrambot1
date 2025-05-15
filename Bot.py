@@ -11,7 +11,7 @@ HF_TOKEN = os.getenv("OPENAI_API_KEY")  # توکن Hugging Face در .env
 
 # ---------- مدل Hugging Face ----------
 model_name = "HuggingFaceH4/zephyr-7b-beta"  # یا هر مدل دلخواه
-pipe = pipeline("text-generation", model=model_name, tokenizer=model_name, token=HF_TOKEN, max_new_tokens=500)
+pipe = pipeline("text-generation", model=model_name, tokenizer=model_name, token=OPENAI_API_KEY, max_new_tokens=500)
 
 # ---------- Prompt Generators ----------
 def generate_prompt(mode, user_input):
